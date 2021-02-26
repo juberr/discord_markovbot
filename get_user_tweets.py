@@ -37,7 +37,7 @@ def get_user_tweets(userid):
         out.append(i['text'])
         
     #get next ~700 tweets using the next token in parameters, add to output
-    for i in range(10):
+    while True:
 
         next_params = {
             "max_results": 100,
