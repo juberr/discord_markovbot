@@ -2,7 +2,7 @@ import markovify
 import random
 import re
 
-with open("quotesntweets.txt", encoding="utf-8") as quotes:
+with open("test.txt", encoding="utf-8") as quotes:
     text = quotes.read()
 
 text_model = markovify.NewlineText(text)

@@ -6,6 +6,8 @@ from discord.ext import commands
 from dotenv import load_dotenv
 from markov_generator import generate
 import json 
+import requests
+import time
 
 
 load_dotenv()
@@ -21,7 +23,7 @@ async def on_ready():
 
 @client.command()
 async def helpme(ctx):
-    msg = "Currently I can:\n$txt - Generate a random message from our tweets\n$highlight: save a randomly generated message to our bot highlights channel"
+    msg = "Currently I can:\n$txt - Generate a random message from our tweets\n$highlight - save a randomly generated message to our bot highlights channel"
     await ctx.send(msg)
 
 
@@ -58,9 +60,54 @@ async def highlight(ctx):
     except:
         await ctx.send("Sorry, no previous message saved!")
 
+@client.command()
+@commands.cooldown(1, 11, commands.BucketType.user)
+async def jep(ctx):
     
+    # get a jeopardy question using the jservice.io
+    jep = requests.get('http://jservice.io/api/random').json()
 
-    
+    # create a discord message to present question
+    q =  f'''
+Topic: {jep[0]['category']['title']}
+
+Value: {jep[0]['value']}
+
+Question: {jep[0]['question']}
+
+    '''
+    print(q)
+
+    # send the message
+    await ctx.send(q)
+
+    # begin the j! game
+    time_start = 0
+
+    while True:
+
+        if time_start == 10:
+            answer = jep[0]['answer']
+            await ctx.send(f'**Beep Beep Beep!** The answer was "{answer}"')
+            break
+        
+            
+        time.sleep(1)
+        time_start += 1
+
+        print(time_start)
+        
+        channel = client.get_channel(812424668320497717)
+        
+        prev_message = await channel.fetch_message(channel.last_message_id)
+        
+        if str(prev_message.author.name) != 'toesnshots.txt':
+            print(prev_message.content)
+
+
+
+
+
 
 
 client.run(TOKEN)
