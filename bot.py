@@ -5,6 +5,7 @@ import discord
 from discord.ext import commands
 from dotenv import load_dotenv
 from markov_generator import generate
+import asyncio
 import json 
 import requests
 import time
@@ -60,6 +61,7 @@ async def highlight(ctx):
     except:
         await ctx.send("Sorry, no previous message saved!")
 
+
 @client.command()
 @commands.cooldown(1, 11, commands.BucketType.user)
 async def jep(ctx):
@@ -83,7 +85,7 @@ ANSWER: REMOVE LATER {jep[0]['answer']}
     print(q)
 
     # send the message
-    await ctx.send(q)
+    await ctx.send(embed=discord.Embed(description=q, title='This, is Jeopardy!'))
 
     # begin the j! game
     time_start = time.time()
@@ -91,30 +93,45 @@ ANSWER: REMOVE LATER {jep[0]['answer']}
     channel = client.get_channel(812424668320497717)
 
     while True:
-        
-        prev_message = await channel.fetch_message(channel.last_message_id)
 
-        print(prev_message)
-        
-        if str(prev_message.author.name) != 'toesnshots.txt':
-            
+        #function to ensure message is coming from the correct channel
+        def check(msg):
+            return msg.channel == channel
+  
+        try:
+            # wait for responses with 10 second timeout
+            prev_message = await client.wait_for("message", check=check, timeout=10)
+
             usr_ans = str(prev_message.content)
 
             usr_start = ' '.join(usr_ans.split()[0:2])
 
+            # if valid jep answer
             if usr_start in valid_starts:
+
                 valid_ans = ' '.join(usr_ans.split()[2:])
                 corr_answer = jep[0]['answer'].lower()
                 print(valid_ans)
 
+                # if correct
                 if valid_ans == corr_answer:
-                    await ctx.send(f'grats {prev_message.author.mention}')
-                    break
 
-        if time.time() >= time_start + 15:
+                    await ctx.send(f'That\'s it {prev_message.author.mention}!')
+                    break
+                # if wrong
+                else:
+                    
+                    await ctx.send(f'mmmm sorry, no {prev_message.author.mention}')      
+                    pass     
+            
+        # if no answers      
+        except asyncio.TimeoutError:
             corr_answer = jep[0]['answer']
             await ctx.send(f'**Beep Beep Beep!** The answer was "{corr_answer}"')
-            break        
+            break     
+
+
+   
                 
             
 
