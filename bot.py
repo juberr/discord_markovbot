@@ -5,6 +5,7 @@ import discord
 from discord.ext import commands
 from dotenv import load_dotenv
 from markov_generator import generate
+from jep_functions import parse_jep
 import asyncio
 import json 
 import requests
@@ -65,24 +66,25 @@ async def highlight(ctx):
 @client.command()
 @commands.cooldown(1, 11, commands.BucketType.user)
 async def jep(ctx):
-
+    await client.change_presence(activity=discord.Game(name='jep'))
     valid_starts = ['what is', 'who is', 'when is', 'where is']
     
     # get a jeopardy question using the jservice.io
     jep = requests.get('http://jservice.io/api/random').json()
 
+    #parse json with premade function
+    question, value, category, answer = parse_jep(jep)
+
     # create a discord message to present question
     q =  f'''
-```Topic: {jep[0]['category']['title']}
+```Category: {category}
 
-Value: {jep[0]['value']}
+Value: {value}
 
-Question: {jep[0]['question']}
-
-ANSWER: REMOVE LATER {jep[0]['answer']}
+Clue: {question}
 ```
     '''
-    print(q)
+    print(answer)
 
     # send the message
     await ctx.send(embed=discord.Embed(description=q, title='This, is Jeopardy!'))
@@ -90,7 +92,7 @@ ANSWER: REMOVE LATER {jep[0]['answer']}
     # begin the j! game
     time_start = time.time()
 
-    channel = client.get_channel(812424668320497717)
+    channel = client.get_channel(814931872987217940)
 
     while True:
 
@@ -100,7 +102,7 @@ ANSWER: REMOVE LATER {jep[0]['answer']}
   
         try:
             # wait for responses with 10 second timeout
-            prev_message = await client.wait_for("message", check=check, timeout=10)
+            prev_message = await client.wait_for("message", check=check, timeout=20)
 
             usr_ans = str(prev_message.content)
 
@@ -110,24 +112,23 @@ ANSWER: REMOVE LATER {jep[0]['answer']}
             if usr_start in valid_starts:
 
                 valid_ans = ' '.join(usr_ans.split()[2:])
-                corr_answer = jep[0]['answer'].lower()
                 print(valid_ans)
 
                 # if correct
-                if valid_ans == corr_answer:
-
+                if valid_ans == answer.lower():
                     await ctx.send(f'That\'s it {prev_message.author.mention}!')
+                    await client.change_presence(activity=discord.Game(name='gameing'))
                     break
+
                 # if wrong
                 else:
-                    
-                    await ctx.send(f'mmmm sorry, no {prev_message.author.mention}')      
-                    pass     
+
+                    await ctx.send(f'mmmm sorry, no {prev_message.author.mention}')     
             
         # if no answers      
         except asyncio.TimeoutError:
-            corr_answer = jep[0]['answer']
-            await ctx.send(f'**Beep Beep Beep!** The answer was "{corr_answer}"')
+            await client.change_presence(activity=discord.Game(name='gameing'))
+            await ctx.send(f'**Beep Beep Beep!** The answer was "{answer}"')
             break     
 
 
