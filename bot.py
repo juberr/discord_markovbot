@@ -25,7 +25,7 @@ async def on_ready():
 
 @client.command()
 async def helpme(ctx):
-    msg = "Currently I can:\n$txt - Generate a random message from our tweets\n$highlight - save a randomly generated message to our bot highlights channel"
+    msg = "Currently I can:\n$txt - Generate a random message from our tweets\n$highlight - save a randomly generated message to our bot highlights channel\n$jep - generate a random jeopardy question and attempt to answer it"
     await ctx.send(msg)
 
 
@@ -64,10 +64,10 @@ async def highlight(ctx):
 
 
 @client.command()
-@commands.cooldown(1, 11, commands.BucketType.user)
+@commands.cooldown(1, 21, commands.BucketType.channel)
 async def jep(ctx):
     await client.change_presence(activity=discord.Game(name='jep'))
-    valid_starts = ['what is', 'who is', 'when is', 'where is']
+    valid_starts = ['what is', 'who is', 'when is', 'where is', 'what are', 'when was']
     
     # get a jeopardy question using the jservice.io
     jep = requests.get('http://jservice.io/api/random').json()
@@ -84,7 +84,7 @@ Value: {value}
 Clue: {question}
 ```
     '''
-    print(answer)
+    print(jep[0])
 
     # send the message
     await ctx.send(embed=discord.Embed(description=q, title='This, is Jeopardy!'))
@@ -96,7 +96,7 @@ Clue: {question}
 
     while True:
 
-        #function to ensure message is coming from the correct channel
+        # function to ensure message is coming from the correct channel
         def check(msg):
             return msg.channel == channel
   
@@ -122,7 +122,6 @@ Clue: {question}
 
                 # if wrong
                 else:
-
                     await ctx.send(f'mmmm sorry, no {prev_message.author.mention}')     
             
         # if no answers      
