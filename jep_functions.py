@@ -29,3 +29,13 @@ def parse_jep(jep):
     answer = answer_cleaner(jep[0]['answer'])
     
     return question, value, category, answer
+
+def clean_answer(answer):
+
+    if answer.split()[2] in ['a', 'the']:
+        answer = answer.split()[3:]
+
+        return ' '.join(answer)
+    
+    else: return ' '.join(answer.split()[2:])
+    

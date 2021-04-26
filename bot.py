@@ -5,7 +5,7 @@ import discord
 from discord.ext import commands
 from dotenv import load_dotenv
 from markov_generator import generate
-from jep_functions import parse_jep
+from jep_functions import parse_jep, clean_answer
 import asyncio
 import json 
 import requests
@@ -84,7 +84,7 @@ Value: {value}
 Clue: {question}
 ```
     '''
-    print(jep[0])
+    print(f'{category}, {value}, {question}, {answer}')
 
     # send the message
     await ctx.send(embed=discord.Embed(description=q, title='This, is Jeopardy!'))
@@ -111,7 +111,8 @@ Clue: {question}
             # if valid jep answer
             if usr_start in valid_starts:
 
-                valid_ans = ' '.join(usr_ans.split()[2:])
+                valid_ans = clean_answer(usr_ans)
+                
                 print(valid_ans)
 
                 # if correct
