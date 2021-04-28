@@ -25,7 +25,7 @@ async def on_ready():
 
 @client.command()
 async def helpme(ctx):
-    msg = "Currently I can:\n$txt - Generate a random message from our tweets\n$highlight - save a randomly generated message to our bot highlights channel\n$jep - generate a random jeopardy question and attempt to answer it"
+    msg = "Currently I can:\n$txt - Generate a random message from our tweets\n$highlight - save a randomly generated message to our bot highlights channel\n$jep - generate a random jeopardy question and you can attempt to answer it"
     await ctx.send(msg)
 
 
@@ -109,14 +109,14 @@ Clue: {question}
             usr_start = ' '.join(usr_ans.split()[0:2])
 
             # if valid jep answer
-            if usr_start in valid_starts:
+            if usr_start.lower() in valid_starts:
 
                 valid_ans = clean_answer(usr_ans)
-                
+
                 print(valid_ans)
 
                 # if correct
-                if valid_ans == answer.lower():
+                if valid_ans.lower() == answer.lower():
                     await ctx.send(f'That\'s it {prev_message.author.mention}!')
                     await client.change_presence(activity=discord.Game(name='gameing'))
                     break
