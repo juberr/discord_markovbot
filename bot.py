@@ -11,6 +11,7 @@ import json
 import requests
 import time
 import re
+import random
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
@@ -67,7 +68,7 @@ async def highlight(ctx):
 @commands.cooldown(1, 21, commands.BucketType.channel)
 async def jep(ctx):
     await client.change_presence(activity=discord.Game(name='jep'))
-    valid_starts = ['what is', 'who is', 'when is', 'where is', 'what are', 'when was']
+    valid_starts = ['what is', 'who is', 'when is', 'where is', 'what are', 'when was', 'who are']
     
     # get a jeopardy question using the jservice.io
     jep = requests.get('http://jservice.io/api/random').json()
@@ -94,11 +95,15 @@ Clue: {question}
 
     channel = client.get_channel(814931872987217940)
 
+    affirmations = ['Yes', 'Good for you', 'You\'re on the board', 'Right you are', 'Thats the word', 'Correct again', 'Correct', 'That was a tough one', 'Thats it']
+    wrongs = ['mmmm sorry, no', 'ha ha ha ha ha, no', 'not quite', 'no sorry']     
+
     while True:
 
         # function to ensure message is coming from the correct channel
         def check(msg):
             return msg.channel == channel
+        
   
         try:
             # wait for responses with 10 second timeout
@@ -117,13 +122,13 @@ Clue: {question}
 
                 # if correct
                 if valid_ans.lower() == answer.lower():
-                    await ctx.send(f'That\'s it {prev_message.author.mention}!')
+                    await ctx.send(f'{affirmations[random.randint(0, len(affirmations)-1)]}, {prev_message.author.mention}!')
                     await client.change_presence(activity=discord.Game(name='gameing'))
                     break
 
                 # if wrong
                 else:
-                    await ctx.send(f'mmmm sorry, no {prev_message.author.mention}')     
+                    await ctx.send(f'{wrongs[random.randint(0,len(wrongs)-1)]}, {prev_message.author.mention}!')     
             
         # if no answers      
         except asyncio.TimeoutError:
@@ -141,6 +146,7 @@ Clue: {question}
 
 
 
-
+affirmations = ['Yes!', 'Good for you', 'You\'re on the board', 'Right you are!', 'Thats the word', 'Correct again', 'Correct!', 'That was a tough one']
+wrongs = ['mmmm sorry, no', 'ha ha ha ha ha, no']
 
 client.run(TOKEN)
